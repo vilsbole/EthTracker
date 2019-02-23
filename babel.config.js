@@ -6,7 +6,8 @@ module.exports = function(api) {
       ['module-resolver', {
         root: ['./'],
         alias: {
-          '@store': './store'
+          '@store': './store',
+          '@screens': './screens'
         }
       }]
     ]
