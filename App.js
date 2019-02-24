@@ -8,11 +8,13 @@ import { AppLoading, Font } from 'expo'
 import { persistor, store } from '@store'
 import HomeScreen from './screens/HomeScreen'
 import DetailsScreen from './screens/DetailsScreen'
+import BarCode from '@screens/BarCodeScreen'
 
 const AppNavigator = createStackNavigator(
   {
     Home: HomeScreen,
-    Details: DetailsScreen
+    Details: DetailsScreen,
+    BarCode: BarCode,
   },
   {
     initialRouteName: 'Home'

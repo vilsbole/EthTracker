@@ -1,15 +1,22 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Permissions } from 'expo';
+
 import {
   StyleSheet,
+  TouchableOpacity,
   View,
 } from 'react-native'
 
 import {
+  Icon
+} from 'react-native-elements'
+
+import {
+  AddressList,
+  Button,
   Input,
   Text,
-  Button,
-  AddressList,
 } from '@components'
 
 import { setValue } from '@store/actions'
@@ -19,7 +26,8 @@ class HomeScreen extends Component {
   static navigationOptions = { header: null }
 
   state = {
-    value: 'Hello'
+    value: 'Hello',
+    hasCameraPermission: null,
   }
 
   _goToDetail = (item) => { this.props.navigation.navigate('Details', { item }) }
@@ -28,6 +36,15 @@ class HomeScreen extends Component {
 
   _onPress = () => this.props.storeValue(this.state.value)
 
+  _scanQRCode = async () => {
+    if (!this.state.hasCameraPermission) {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA)
+      this.setState({ hasCameraPermission: status === 'granted' })
+    }
+    if (this.state.hasCameraPermission) {
+      this.props.navigation.navigate('BarCode')
+    }
+  }
 
   render() {
     return (
@@ -42,7 +59,16 @@ class HomeScreen extends Component {
               placeholder="0xa910f92..."
               errorStyle={{ color: 'red' }}
               errorMessage={ false ? '' : 'Enter a valid address' }
-              onChangeText={this._validateInput} />
+              onChangeText={this._validateInput}
+              rightIcon={
+                <TouchableOpacity onPress={this._scanQRCode}>
+                  <Icon
+                    name="device-camera"
+                    size={24}
+                    color="black"
+                    type="octicon" />
+                </TouchableOpacity>
+              }/>
           </View>
           <View>
             <Button
