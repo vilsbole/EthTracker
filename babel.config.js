@@ -7,7 +7,8 @@ module.exports = function(api) {
         root: ['./'],
         alias: {
           '@store': './store',
-          '@screens': './screens'
+          '@screens': './screens',
+          '@components': './components',
         }
       }]
     ]
