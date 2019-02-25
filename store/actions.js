@@ -25,6 +25,7 @@ export function setAccountDetails(account) {
         payload: { ops, txs, account, summary }
       })
     } catch (err) {
+      throw new Error(err)
       dispatch({
         type: DETAILS.ERROR,
         payload: { account, err }

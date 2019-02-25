@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Permissions } from 'expo';
+import { Permissions } from 'expo'
+import { utils } from 'ethers'
 
 import {
   StyleSheet,
@@ -68,7 +69,7 @@ class HomeScreen extends Component {
             <Text h4 bold>Find an Ethereum Account</Text>
             <Text>{this.state.address}</Text>
           </View>
-          <View>
+          <View style={styles.inputContainer}>
             <Input
               style={styles.input}
               placeholder="0xa910f92..."
@@ -85,7 +86,7 @@ class HomeScreen extends Component {
                 </TouchableOpacity>
               }/>
           </View>
-          <View>
+          <View style={styles.actionContainer}>
             <Button
               style={ true ? styles.action : '' }
               onPress={this._searchAddress}
@@ -123,13 +124,19 @@ export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
     display: 'flex',
     // alignItems: 'center',
     // justifyContent: 'center'
   },
   titleContainer: {
-    paddingVertical: 20
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+  },
+  inputContainer: {
+    paddingHorizontal: 16,
+  },
+  actionContainer: {
+    paddingHorizontal: 16,
   },
   action: {
     alignSelf: 'flex-end',

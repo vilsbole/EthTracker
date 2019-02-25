@@ -2,10 +2,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { ListItem, Icon } from 'react-native-elements'
+  import TimeAgo from 'react-timeago'
 
 import { Text } from '@components'
-import { getSummary } from '@api/ledgerUtils'
 import { toggleList } from '@store/actions'
+import { getSummary, formatValue } from '@api/ledgerUtils'
 
 class DetailsScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -17,84 +18,97 @@ class DetailsScreen extends Component {
   _keyExtractor = (value, index) => index.toString()
 
   _renderToken = ({ item: token }) => (
-    <ListItem
-      title={token.symbol}
-      titleStyle={styles.title}
-      subTitle={token.value}/>
+    <View style={styles.tokenItem}>
+      <Text>{token.symbol}</Text>
+      <Text>{formatValue(token.value, token.magnitude)}</Text>
+    </View>
   )
   _renderTransaction = ({ item: tx }) => (
-    <ListItem
-      title={tx.type}
-      titleStyle={styles.title}
-      subTitle={tx.value} />
+    <View style={styles.txItem}>
+      <TimeAgo date={tx.date} component={Text} hideAgo={true} style={styles.timeAgo}/>
+      {
+        (tx.type === 'OUT')
+        ?  <Text style={styles.txValue}>-{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
+        :  <Text style={[styles.txValue, styles.green]}>{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
+      }
+
+    </View>
   )
+
+  getTokens(summary) {
+    return summary.filter(token => token.symbol !== 'ETH')
+  }
+
+  getEth(summary) {
+    return summary.find(token => token.symbol === 'ETH')
+  }
 
   render() {
     const { openedList, toggleList } = this.props
     const { isLoading, ops, summary } = this.props.account
 
-    if (isLoading) {
+    if (!isLoading && summary) {
+      const tokens = this.getTokens(summary)
+      const eth = this.getEth(summary)
+      return (
+        <View style={styles.container}>
+          <View style={styles.jumbo}>
+            <Text h3 bold>ETH {formatValue(eth.value, eth.magnitude)}</Text>
+          </View>
+          <View>
+            <TouchableOpacity onPress={() => toggleList('tokens')} style={[styles.headerAction, styles.borderTop]}>
+              <Text h5 bold>
+                Tokens
+              </Text>
+              <Icon
+                name={ openedList === 'tokens' ? "chevron-down" : "chevron-right" }
+                size={24}
+                color="black"
+                type="octicon" />
+            </TouchableOpacity>
+            {
+              openedList === 'tokens' &&
+              <FlatList
+                data={tokens}
+                keyExtractor={this._keyExtractor}
+                renderItem={this._renderToken}/>
+            }
+          </View>
+          <View>
+            <TouchableOpacity onPress={() => toggleList('transactions')} style={styles.headerAction}>
+              <Text h5 bold>
+                Transactions
+              </Text>
+              <Icon
+                name={ openedList === 'transactions' ? "chevron-down" : "chevron-right" }
+                size={24}
+                color="black"
+                type="octicon" />
+            </TouchableOpacity>
+            {
+              openedList === 'transactions' &&
+              <FlatList
+              data={ops}
+              keyExtractor={this._keyExtractor}
+              renderItem={this._renderTransaction}/>
+            }
+          </View>
+        </View>
+      )
+    } else {
       return (
         <View>
           <Text>Loading</Text>
         </View>
       )
     }
-
-    return (
-      <View style={styles.container}>
-        <View style={styles.jumbo}>
-          <Text h3 bold>Hello</Text>
-        </View>
-        <View>
-          <TouchableOpacity onPress={() => toggleList('tokens')} style={[styles.headerAction, styles.borderTop]}>
-            <Text h5 bold>
-              Tokens
-            </Text>
-            <Icon
-              name={ openedList === 'tokens' ? "chevron-down" : "chevron-right" }
-              size={24}
-              color="black"
-              type="octicon" />
-
-          </TouchableOpacity>
-          {
-            openedList === 'tokens' &&
-            <FlatList
-              data={summary}
-              keyExtractor={this._keyExtractor}
-              renderItem={this._renderToken}/>
-          }
-        </View>
-        <View>
-          <TouchableOpacity onPress={() => toggleList('transactions')} style={styles.headerAction}>
-            <Text h5 bold>
-              Transactions
-            </Text>
-            <Icon
-              name={ openedList === 'transactions' ? "chevron-down" : "chevron-right" }
-              size={24}
-              color="black"
-              type="octicon" />
-
-          </TouchableOpacity>
-          {
-            openedList === 'transactions' &&
-            <FlatList
-            data={ops}
-            keyExtractor={this._keyExtractor}
-            renderItem={this._renderTransaction}/>
-          }
-        </View>
-      </View>
-    )
   }
 }
 
 // @TODO refactor access
 const mapStateToProps = (state, { navigation }) => ({
   openedList: state.data.openedList,
-  account: state.data.accounts[navigation.state.params.account]
+  account: state.data.accounts[navigation.state.params.account],
 })
 
 const mapDispatchToProps = (dispatch) => ({
@@ -125,10 +139,38 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: 'lightgrey'
   },
   title: {},
   subTitle: {},
+  tokenItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10
+  },
+  txItem: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 15,
+    paddingVertical: 10
+  },
+  txValue: {
+    paddingVertical: 4,
+    paddingHorizontal: 1,
+  },
+  green: {
+    backgroundColor: '#5ad9bf',
+    fontFamily: 'Lekton',
+    fontSize: 18
+  },
+  timeAgo: {
+    color: 'darkgrey'
+  },
 })

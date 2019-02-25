@@ -15,7 +15,7 @@ export default ({ children, bold, ...passThroughProps }) => {
 
   return (
     <ThemeProvider theme={theme}>
-    <Text {...passThroughProps}>{children}</Text>
+      <Text {...passThroughProps}>{children}</Text>
     </ThemeProvider>
   )
 }

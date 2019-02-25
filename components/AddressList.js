@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Lekton'
   },
   scrollView: {
-    flexGrow: 0,
-    height: 350
+    flexGrow: 0
   },
 })
