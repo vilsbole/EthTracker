@@ -6,8 +6,8 @@ import { createStackNavigator, createAppContainer } from 'react-navigation'
 import { AppLoading, Font } from 'expo'
 
 import { persistor, store } from '@store'
-import HomeScreen from './screens/HomeScreen'
-import DetailsScreen from './screens/DetailsScreen'
+import HomeScreen from '@screens/HomeScreen'
+import DetailsScreen from '@screens/DetailsScreen'
 import BarCode from '@screens/BarCodeScreen'
 
 const AppNavigator = createStackNavigator(
@@ -17,7 +17,7 @@ const AppNavigator = createStackNavigator(
     BarCode: BarCode,
   },
   {
-    initialRouteName: 'Details'
+    initialRouteName: 'Home'
   }
 )
 const AppContainer = createAppContainer(AppNavigator)
@@ -27,9 +27,8 @@ export default class App extends React.Component {
 
   async componentWillMount() {
     await Font.loadAsync({
-      'PTMono': require('./assets/fonts/PTM55FT.ttf'),
-      'Lekton': require('./assets/fonts/Lekton-Regular.ttf'),
-      'LektonBold': require('./assets/fonts/Lekton-Bold.ttf'),
+      'Lekton': require('@assets/fonts/Lekton-Regular.ttf'),
+      'LektonBold': require('@assets/fonts/Lekton-Bold.ttf'),
     }).then(() => this.setState({ isReady: true }))
   }
 

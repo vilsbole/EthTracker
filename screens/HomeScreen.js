@@ -19,7 +19,8 @@ import {
   Text,
 } from '@components'
 
-import { setValue } from '@store/actions'
+import { setValue, setAccountDetails } from '@store/actions'
+import { fetchTxs, txsToOperations } from '@api/ledgerUtils'
 
 class HomeScreen extends Component {
   // React-navigation hide header
@@ -31,11 +32,21 @@ class HomeScreen extends Component {
     address: null
   }
 
-  _goToDetail = (address) => { this.props.navigation.navigate('Details', { address }) }
+  _goToDetail = (account) => { this.props.navigation.navigate('Details', { account }) }
 
   _validateInput = (text) => this.setState({ value: text })
 
-  _onPress = () => this.props.storeValue(this.state.value)
+  _searchAddress = async () => {
+    const account = '0xa910f92acdaf488fa6ef02174fb86208ad7722ba'
+    // Add to store && And clear input
+    this.props.storeValue(account)
+
+    // Load tx
+    this.props.setAccountDetails(account)
+
+    // Go to detail page
+    this._goToDetail(account)
+  }
 
   _setAddress = (address) => this.setState({ address })
 
@@ -54,7 +65,7 @@ class HomeScreen extends Component {
       <View style={styles.container}>
         <View style={styles.search}>
           <View style={styles.titleContainer}>
-            <Text h4 style={styles.header}>Find an Ethereum Account</Text>
+            <Text h4 bold>Find an Ethereum Account</Text>
             <Text>{this.state.address}</Text>
           </View>
           <View>
@@ -77,13 +88,13 @@ class HomeScreen extends Component {
           <View>
             <Button
               style={ true ? styles.action : '' }
-              onPress={this._onPress}
+              onPress={this._searchAddress}
               title="Search"/>
           </View>
         </View>
         <View style={styles.history}>
           <View style={styles.titleContainer}>
-            <Text h4 style={styles.header}>History</Text>
+            <Text h4 bold>History</Text>
           </View>
           <View>
             <AddressList
@@ -103,7 +114,8 @@ const mapStateToProps = ({ data }) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  storeValue: (value) => dispatch(setValue(value))
+  storeValue: (value) => dispatch(setValue(value)),
+  setAccountDetails: (account) => dispatch(setAccountDetails(account))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
@@ -118,9 +130,6 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     paddingVertical: 20
-  },
-  header: {
-    fontFamily: 'LektonBold'
   },
   action: {
     alignSelf: 'flex-end',

@@ -1,19 +1,11 @@
 import { combineReducers } from 'redux'
-
-function counter(state = 0, action) {
-  switch (action.type) {
-    case 'INCREMENT':
-      return state + 1
-    case 'DECREMENT':
-      return state - 1
-    default:
-      return state
-  }
-}
+import { DETAILS } from './constants'
 
 function data(
   state = {
-    values: []
+    values: [],
+    accounts: {},
+    openedList: null
   },
   action
 ) {
@@ -23,9 +15,63 @@ function data(
         ...state,
         values: [ ...state.values, action.payload ]
       }
+    case DETAILS.START: {
+      const { account } = action.payload
+      return {
+        ...state,
+        accounts: {
+          ...state.accounts,
+          [account]: { isLoading: true }
+        }
+      }
+    }
+    case DETAILS.COMPLETE: {
+      const { account, txs, ops, summary } = action.payload
+      const accountData = {
+        lastFetch: new Date(),
+        isLoading: false,
+        txs,
+        ops,
+        summary,
+      }
+      return {
+        ...state,
+        accounts: {
+          ...state.accounts,
+          [account]: accountData
+        }
+      }
+    }
+    case DETAILS.ERROR: {
+      const { account, err } = action.payload
+      const accountData = {
+        lastFetch: new Date(),
+        isLoading: false,
+        err
+      }
+      return {
+        ...state,
+        accounts: {
+          ...state.accounts,
+          [account]: accountData
+        }
+      }
+    }
+    case DETAILS.OPEN_LIST: {
+      return {
+        ...state,
+        openedList: action.payload.listName
+      }
+    }
+    case DETAILS.CLOSE_LIST: {
+      return {
+        ...state,
+        openedList: null
+      }
+    }
     default:
       return state
   }
 }
 
-export default combineReducers({ counter, data })
+export default combineReducers({ data })
