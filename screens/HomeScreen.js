@@ -28,13 +28,16 @@ class HomeScreen extends Component {
   state = {
     value: 'Hello',
     hasCameraPermission: null,
+    address: null
   }
 
-  _goToDetail = (item) => { this.props.navigation.navigate('Details', { item }) }
+  _goToDetail = (address) => { this.props.navigation.navigate('Details', { address }) }
 
   _validateInput = (text) => this.setState({ value: text })
 
   _onPress = () => this.props.storeValue(this.state.value)
+
+  _setAddress = (address) => this.setState({ address })
 
   _scanQRCode = async () => {
     if (!this.state.hasCameraPermission) {
@@ -42,7 +45,7 @@ class HomeScreen extends Component {
       this.setState({ hasCameraPermission: status === 'granted' })
     }
     if (this.state.hasCameraPermission) {
-      this.props.navigation.navigate('BarCode')
+      this.props.navigation.navigate('BarCode', { onSuccess: this._setAddress })
     }
   }
 
@@ -51,7 +54,8 @@ class HomeScreen extends Component {
       <View style={styles.container}>
         <View style={styles.search}>
           <View style={styles.titleContainer}>
-            <Text h4 style={styles.titleText}>Find an Ethereum Account</Text>
+            <Text h4 style={styles.header}>Find an Ethereum Account</Text>
+            <Text>{this.state.address}</Text>
           </View>
           <View>
             <Input
@@ -79,7 +83,7 @@ class HomeScreen extends Component {
         </View>
         <View style={styles.history}>
           <View style={styles.titleContainer}>
-            <Text h4 style={styles.titleText}>History</Text>
+            <Text h4 style={styles.header}>History</Text>
           </View>
           <View>
             <AddressList
@@ -115,7 +119,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     paddingVertical: 20
   },
-  titleText: {
+  header: {
     fontFamily: 'LektonBold'
   },
   action: {

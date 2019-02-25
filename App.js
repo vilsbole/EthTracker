@@ -17,7 +17,7 @@ const AppNavigator = createStackNavigator(
     BarCode: BarCode,
   },
   {
-    initialRouteName: 'Home'
+    initialRouteName: 'Details'
   }
 )
 const AppContainer = createAppContainer(AppNavigator)

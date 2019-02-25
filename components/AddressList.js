@@ -18,8 +18,7 @@ class AddressList extends PureComponent {
       <ListItem
         titleStyle={styles.title}
         containerStyle={styles.item}
-        title={address}
-        />
+        title={address}/>
     </TouchableOpacity>
   )
 
