@@ -13,7 +13,7 @@ function data(
     case SEARCH.ADD: {
       return {
         ...state,
-        // Unshift the most recent search 
+        // Unshift the most recent search
         history: [ action.payload, ...state.history ]
       }
     }
@@ -28,7 +28,7 @@ function data(
       }
     }
     case DETAILS.COMPLETE: {
-      const { account, txs, ops, summary } = action.payload
+      const { account, txs, ops, summary, meta, quotes } = action.payload
       const accountData = {
         lastFetch: new Date(),
         isLoading: false,
@@ -38,6 +38,8 @@ function data(
       }
       return {
         ...state,
+        meta,
+        quotes,
         accounts: {
           ...state.accounts,
           [account]: accountData

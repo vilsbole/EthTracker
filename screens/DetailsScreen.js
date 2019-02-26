@@ -1,12 +1,25 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { ListItem, Icon } from 'react-native-elements'
-  import TimeAgo from 'react-timeago'
+import TimeAgo from 'react-timeago'
 
 import { Text } from '@components'
 import { setAccountDetails, toggleList } from '@store/actions'
 import { getSummary, formatValue } from '@api/ledgerUtils'
+
+const mapStateToProps = ({ data }, { navigation }) => ({
+  openedList: data.openedList,
+  account: data.accounts[navigation.state.params.account],
+  meta: data.meta,
+  quotes: data.quotes,
+})
+
+const mapDispatchToProps = (dispatch) => ({
+  setAccountDetails: (account) => dispatch(setAccountDetails(account)),
+  toggleList: (name) => dispatch(toggleList(name)),
+})
+
 
 class DetailsScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
@@ -56,10 +69,15 @@ class DetailsScreen extends Component {
     if (!isLoading && summary) {
       const tokens = this.getTokens(summary)
       const eth = this.getEth(summary)
+      const { quotes } = this.props
       return (
         <View style={styles.container}>
           <View style={styles.jumbo}>
             <Text h3 bold>ETH {formatValue(eth.value, eth.magnitude)}</Text>
+            {
+              quotes[eth.symbol]
+              && <Text>{ quotes[eth.symbol].quote.price }</Text>
+            }
           </View>
           <View>
             <TouchableOpacity onPress={() => toggleList('tokens')} style={[styles.headerAction, styles.borderTop]}>
@@ -106,28 +124,14 @@ class DetailsScreen extends Component {
     } else {
       return (
         <View style={[StyleSheet.absoluteFill, styles.centered]}>
-          <Text>Loading...</Text>
+          <ActivityIndicator style={styles.activityIndicator} size="large" color="#000" />
         </View>
       )
     }
   }
 }
 
-// @TODO refactor access
-const mapStateToProps = (state, { navigation }) => ({
-  openedList: state.data.openedList,
-  account: state.data.accounts[navigation.state.params.account],
-})
-
-const mapDispatchToProps = (dispatch) => ({
-  setAccountDetails: (account) => dispatch(setAccountDetails(account)),
-  toggleList: (name) => dispatch(toggleList(name)),
-})
-
-
 export default connect(mapStateToProps, mapDispatchToProps)(DetailsScreen)
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -184,8 +188,11 @@ const styles = StyleSheet.create({
   },
   centered: {
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  activityIndicator: {
+    marginBottom: 100
   },
   toggableTitle: {
     display: 'flex',

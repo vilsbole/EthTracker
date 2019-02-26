@@ -22,10 +22,11 @@ export function setAccountDetails(account) {
       const ops = txsToOperations(txs, account)
       const summary = getSummary(ops)
       const meta = await getMetaData(summary.map(t => t.symbol))
-      const market = await getMarketQuote(summary.map(t => t.symbol))
+      const quotes = await getMarketQuote(summary.map(t => t.symbol))
+      console.log(meta, quotes)
       dispatch({
         type: DETAILS.COMPLETE,
-        payload: { ops, txs, account, summary }
+        payload: { ops, txs, account, summary, meta, quotes }
       })
     } catch (err) {
       throw new Error(err)

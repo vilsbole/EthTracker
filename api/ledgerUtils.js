@@ -145,7 +145,7 @@ export const getSummary = operations => {
   });
 
   const tokens = Object.entries(balances).map(([k, v]) => {
-    return { symbol: k, value: v, magnitude: tokensMagnitude[k] }
+    return { symbol: k.toUpperCase(), value: v, magnitude: tokensMagnitude[k] }
   })
 
   return tokens;
