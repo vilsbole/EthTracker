@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react'
 import { Text, ThemeProvider } from 'react-native-elements'
 
-
-
 export default ({ children, bold, ...passThroughProps }) => {
   const theme = {
     Text: {

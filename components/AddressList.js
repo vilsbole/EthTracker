@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { ListItem } from 'react-native-elements'
 import TimeAgo from 'react-timeago'
-import { Text } from '@components'
+import Text from './Text'
 
 class AddressList extends PureComponent {
   static propTypes = {
@@ -20,6 +20,7 @@ class AddressList extends PureComponent {
       titleStyle={styles.title}
       containerStyle={styles.item}
       title={search.value}
+      titleProps={{ numberOfLines: 1, ellipsizeMode: 'middle' }}
       subtitle={<TimeAgo date={search.date} component={Text} style={styles.timeAgo}/>}
     />
   )

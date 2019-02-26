@@ -1,4 +1,4 @@
-import { API_KEY } from '../.env.json'
+import { API_KEY } from './.env.json'
 
 const URL = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency'
 

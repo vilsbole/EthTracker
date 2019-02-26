@@ -34,9 +34,21 @@ class HomeScreen extends Component {
     isDisabled: true,
   }
 
+  _setAddress = (address) => {
+    if (!address || address.length === 0) {
+      this.setState({ isDisabled: true })
+    }
+    this.setState({ address: address.trim() })
+  }
+  _clearError = () => this.setState({ errorMsg: null })
   _goToDetail = (account) => { this.props.navigation.navigate('Details', { account }) }
 
-  _validate = (val) => {
+  _randomAccount = async () => {
+    await this._setAddress(getRandomAccount())
+    this._validate()
+  }
+
+  _validate = () => {
     if (this.state.address && isValidEthereum(this.state.address)) {
       this.setState({ isDisabled: false })
     } else if (this.state.address) {
@@ -47,29 +59,25 @@ class HomeScreen extends Component {
     }
   }
 
-  _searchAddress = () => {
+  _search = () => {
     const account = this.state.address
-    // Add to store && And clear input
     this.props.setHistory(account)
     this._goToDetail(account)
-  }
-
-  _setAddress = (address) => this.setState({ address: address.trim() })
-  _clearError = () => this.setState({ errorMsg: null })
-
-  _randomAccount = () => {
-    const account = getRandomAccount()
-
-    this.setState({ address: account })
+    // @TODO clear input
   }
 
   _scanQRCode = async () => {
+    const onSuccess = async (data) => {
+      await this._setAddress(data)
+      this._validate()
+    }
+
     if (!this.state.hasCameraPermission) {
       const { status } = await Permissions.askAsync(Permissions.CAMERA)
-      this.setState({ hasCameraPermission: status === 'granted' })
+      await this.setState({ hasCameraPermission: status === 'granted' })
     }
     if (this.state.hasCameraPermission) {
-      this.props.navigation.navigate('BarCode', { onSuccess: this._setAddress })
+      this.props.navigation.navigate('BarCode', { onSuccess })
     }
   }
 
@@ -111,7 +119,7 @@ class HomeScreen extends Component {
             <Button
               disabled={isDisabled}
               style={ true ? styles.action : '' }
-              onPress={() => this._searchAddress()}
+              onPress={() => this._search()}
               title="Search"/>
           </View>
         </View>

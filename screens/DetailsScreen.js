@@ -23,8 +23,7 @@ const mapDispatchToProps = (dispatch) => ({
 
 class DetailsScreen extends Component {
   static navigationOptions = ({ navigation }) => ({
-    title: navigation.state.params ? `${navigation.state.params.account}` : 'undefined',
-    headerTitleStyle: { fontFamily: 'LektonBold' },
+    headerTitle: <Text bold numberOfLines={1} ellipsizeMode="middle">{navigation.state.params.account}</Text>,
     headerBackTitleStyle: { fontFamily: 'Lekton' },
   })
 
