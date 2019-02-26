@@ -102,6 +102,5 @@ const accounts = [
 
 export const getRandomAccount = () => {
   const randomIndex = Math.floor(Math.random() * accounts.length)
-  debugger
   return accounts[randomIndex]
 }

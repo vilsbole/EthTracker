@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "ERC20-explorer",
+    "name": "EthHound",
     "slug": "naked",
     "privacy": "public",
     "sdkVersion": "32.0.0",

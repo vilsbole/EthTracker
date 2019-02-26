@@ -8,6 +8,7 @@ import { Icon } from 'react-native-elements'
 import { setSearchHistory } from '@store/actions'
 import { fetchTxs, txsToOperations, isValidEthereum } from '@api/ledgerUtils'
 import { getRandomAccount } from '@api/data'
+
 import {
   AddressList,
   Button,
@@ -89,7 +90,6 @@ class HomeScreen extends Component {
           <View style={styles.inputContainer}>
             <Input
               style={styles.input}
-              autoFocus={true}
               clearButtonMode="always"
               placeholder="0xa910f92..."
               errorMessage={errorMsg}

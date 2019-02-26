@@ -1,5 +1,6 @@
 import { DETAILS, SEARCH } from './constants'
 import { fetchTxs, txsToOperations, getSummary } from '@api/ledgerUtils'
+import { getMetaData, getMarketQuote } from '@api/agent'
 
 export function setSearchHistory(value) {
   return async (dispatch) => {
@@ -20,6 +21,8 @@ export function setAccountDetails(account) {
       const txs = await fetchTxs(account)
       const ops = txsToOperations(txs, account)
       const summary = getSummary(ops)
+      const meta = await getMetaData(summary.map(t => t.symbol))
+      const market = await getMarketQuote(summary.map(t => t.symbol))
       dispatch({
         type: DETAILS.COMPLETE,
         payload: { ops, txs, account, summary }
