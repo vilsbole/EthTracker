@@ -13,7 +13,8 @@ function data(
     case SEARCH.ADD: {
       return {
         ...state,
-        history: [ ...state.history, action.payload ]
+        // Unshift the most recent search 
+        history: [ action.payload, ...state.history ]
       }
     }
     case DETAILS.START: {

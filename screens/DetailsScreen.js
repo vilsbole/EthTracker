@@ -63,9 +63,10 @@ class DetailsScreen extends Component {
           </View>
           <View>
             <TouchableOpacity onPress={() => toggleList('tokens')} style={[styles.headerAction, styles.borderTop]}>
-              <Text h5 bold>
-                Tokens
-              </Text>
+              <View style={styles.toggableTitle}>
+                <Text h5 bold>Tokens</Text>
+                <Text style={styles.light}>({tokens.length})</Text>
+              </View>
               <Icon
                 name={ openedList === 'tokens' ? "chevron-down" : "chevron-right" }
                 size={24}
@@ -82,9 +83,10 @@ class DetailsScreen extends Component {
           </View>
           <View>
             <TouchableOpacity onPress={() => toggleList('transactions')} style={styles.headerAction}>
-              <Text h5 bold>
-                Transactions
-              </Text>
+              <View style={styles.toggableTitle}>
+                <Text h5 bold>Transactions</Text>
+                <Text style={styles.light}>({ops.length})</Text>
+              </View>
               <Icon
                 name={ openedList === 'transactions' ? "chevron-down" : "chevron-right" }
                 size={24}
@@ -185,4 +187,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  toggableTitle: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  light: {
+    color: 'darkgrey',
+    fontSize: 14,
+    marginLeft: 3
+  }
 })

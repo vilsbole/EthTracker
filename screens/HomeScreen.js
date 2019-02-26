@@ -2,11 +2,12 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Permissions } from 'expo'
 import { utils } from 'ethers'
-import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, TouchableHighlight, TouchableOpacity, View } from 'react-native'
 import { Icon } from 'react-native-elements'
 
 import { setSearchHistory } from '@store/actions'
 import { fetchTxs, txsToOperations, isValidEthereum } from '@api/ledgerUtils'
+import { getRandomAccount } from '@api/data'
 import {
   AddressList,
   Button,
@@ -35,11 +36,13 @@ class HomeScreen extends Component {
   _goToDetail = (account) => { this.props.navigation.navigate('Details', { account }) }
 
   _validate = (val) => {
-    if (isValidEthereum(this.state.address)) {
+    if (this.state.address && isValidEthereum(this.state.address)) {
       this.setState({ isDisabled: false })
-    } else {
+    } else if (this.state.address) {
       this.setState({ isDisabled: true })
       this.setState({ errorMsg: 'Please enter a valid Ethereum Address'})
+    } else {
+      this.setState({ isDisabled: true })
     }
   }
 
@@ -53,6 +56,12 @@ class HomeScreen extends Component {
   _setAddress = (address) => this.setState({ address: address.trim() })
   _clearError = () => this.setState({ errorMsg: null })
 
+  _randomAccount = () => {
+    const account = getRandomAccount()
+
+    this.setState({ address: account })
+  }
+
   _scanQRCode = async () => {
     if (!this.state.hasCameraPermission) {
       const { status } = await Permissions.askAsync(Permissions.CAMERA)
@@ -64,12 +73,18 @@ class HomeScreen extends Component {
   }
 
   render() {
-    const { isDisabled, errorMsg } = this.state
+    const { isDisabled, errorMsg, address } = this.state
     return (
       <View style={styles.container}>
         <View style={styles.search}>
           <View style={styles.titleContainer}>
-            <Text h4 bold>Track an Ethereum Account</Text>
+            <Text h4 bold>Enter an Ethereum Account</Text>
+            <TouchableOpacity onPress={this._randomAccount}>
+              <View style={styles.inline}>
+                <Text style={styles.small}>or select a </Text>
+                <Text style={styles.underlined}>random account</Text>
+              </View>
+            </TouchableOpacity>
           </View>
           <View style={styles.inputContainer}>
             <Input
@@ -81,6 +96,7 @@ class HomeScreen extends Component {
               onChangeText={this._setAddress}
               onBlur={this._validate}
               onFocus={this._clearError}
+              value={address}
               rightIcon={
                 <TouchableOpacity onPress={this._scanQRCode}>
                   <Icon
@@ -142,5 +158,17 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     height: 300
+  },
+  small: {
+    fontSize: 14,
+  },
+  underlined: {
+    fontSize: 14,
+    textDecorationLine: 'underline'
+  },
+  inline: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
   },
 })
