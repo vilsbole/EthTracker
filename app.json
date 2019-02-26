@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "EthHound",
-    "slug": "naked",
+    "name": "EthTracker",
+    "slug": "ethtracker",
     "privacy": "public",
     "sdkVersion": "32.0.0",
     "platforms": [
@@ -14,7 +14,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#fff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
