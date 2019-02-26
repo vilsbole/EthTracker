@@ -5,7 +5,7 @@ import { ListItem, Icon } from 'react-native-elements'
   import TimeAgo from 'react-timeago'
 
 import { Text } from '@components'
-import { toggleList } from '@store/actions'
+import { setAccountDetails, toggleList } from '@store/actions'
 import { getSummary, formatValue } from '@api/ledgerUtils'
 
 class DetailsScreen extends Component {
@@ -15,6 +15,11 @@ class DetailsScreen extends Component {
     headerBackTitleStyle: { fontFamily: 'Lekton' },
   })
 
+  componentDidMount() {
+    const { setAccountDetails, navigation } = this.props
+    setAccountDetails(navigation.state.params.account)
+  }
+
   _keyExtractor = (value, index) => index.toString()
 
   _renderToken = ({ item: token }) => (
@@ -23,17 +28,18 @@ class DetailsScreen extends Component {
       <Text>{formatValue(token.value, token.magnitude)}</Text>
     </View>
   )
+
   _renderTransaction = ({ item: tx }) => (
     <View style={styles.txItem}>
-      <TimeAgo date={tx.date} component={Text} hideAgo={true} style={styles.timeAgo}/>
+      <TimeAgo date={tx.date} component={Text} style={styles.timeAgo}/>
       {
         (tx.type === 'OUT')
         ?  <Text style={styles.txValue}>-{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
         :  <Text style={[styles.txValue, styles.green]}>{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
       }
-
     </View>
   )
+
 
   getTokens(summary) {
     return summary.filter(token => token.symbol !== 'ETH')
@@ -44,8 +50,8 @@ class DetailsScreen extends Component {
   }
 
   render() {
-    const { openedList, toggleList } = this.props
-    const { isLoading, ops, summary } = this.props.account
+    const { openedList, toggleList, account = {} } = this.props
+    const { isLoading, ops, summary } = account
 
     if (!isLoading && summary) {
       const tokens = this.getTokens(summary)
@@ -97,8 +103,8 @@ class DetailsScreen extends Component {
       )
     } else {
       return (
-        <View>
-          <Text>Loading</Text>
+        <View style={[StyleSheet.absoluteFill, styles.centered]}>
+          <Text>Loading...</Text>
         </View>
       )
     }
@@ -112,7 +118,8 @@ const mapStateToProps = (state, { navigation }) => ({
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  toggleList: (name) => dispatch(toggleList(name))
+  setAccountDetails: (account) => dispatch(setAccountDetails(account)),
+  toggleList: (name) => dispatch(toggleList(name)),
 })
 
 
@@ -172,5 +179,10 @@ const styles = StyleSheet.create({
   },
   timeAgo: {
     color: 'darkgrey'
+  },
+  centered: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
 })

@@ -2,17 +2,11 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Permissions } from 'expo'
 import { utils } from 'ethers'
+import { StyleSheet, TouchableOpacity, View } from 'react-native'
+import { Icon } from 'react-native-elements'
 
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native'
-
-import {
-  Icon
-} from 'react-native-elements'
-
+import { setSearchHistory } from '@store/actions'
+import { fetchTxs, txsToOperations, isValidEthereum } from '@api/ledgerUtils'
 import {
   AddressList,
   Button,
@@ -20,36 +14,44 @@ import {
   Text,
 } from '@components'
 
-import { setValue, setAccountDetails } from '@store/actions'
-import { fetchTxs, txsToOperations } from '@api/ledgerUtils'
+const mapStateToProps = ({ data }) => ({
+  history: data.history
+})
+
+const mapDispatchToProps = (dispatch) => ({
+  setHistory: (value) => dispatch(setSearchHistory(value)),
+})
 
 class HomeScreen extends Component {
-  // React-navigation hide header
   static navigationOptions = { header: null }
 
   state = {
-    value: 'Hello',
     hasCameraPermission: null,
-    address: null
+    address: null,
+    errorMsg: null,
+    isDisabled: true,
   }
 
   _goToDetail = (account) => { this.props.navigation.navigate('Details', { account }) }
 
-  _validateInput = (text) => this.setState({ value: text })
+  _validate = (val) => {
+    if (isValidEthereum(this.state.address)) {
+      this.setState({ isDisabled: false })
+    } else {
+      this.setState({ isDisabled: true })
+      this.setState({ errorMsg: 'Please enter a valid Ethereum Address'})
+    }
+  }
 
-  _searchAddress = async () => {
-    const account = '0xa910f92acdaf488fa6ef02174fb86208ad7722ba'
+  _searchAddress = () => {
+    const account = this.state.address
     // Add to store && And clear input
-    this.props.storeValue(account)
-
-    // Load tx
-    this.props.setAccountDetails(account)
-
-    // Go to detail page
+    this.props.setHistory(account)
     this._goToDetail(account)
   }
 
-  _setAddress = (address) => this.setState({ address })
+  _setAddress = (address) => this.setState({ address: address.trim() })
+  _clearError = () => this.setState({ errorMsg: null })
 
   _scanQRCode = async () => {
     if (!this.state.hasCameraPermission) {
@@ -62,20 +64,23 @@ class HomeScreen extends Component {
   }
 
   render() {
+    const { isDisabled, errorMsg } = this.state
     return (
       <View style={styles.container}>
         <View style={styles.search}>
           <View style={styles.titleContainer}>
-            <Text h4 bold>Find an Ethereum Account</Text>
-            <Text>{this.state.address}</Text>
+            <Text h4 bold>Track an Ethereum Account</Text>
           </View>
           <View style={styles.inputContainer}>
             <Input
               style={styles.input}
+              autoFocus={true}
+              clearButtonMode="always"
               placeholder="0xa910f92..."
-              errorStyle={{ color: 'red' }}
-              errorMessage={ false ? '' : 'Enter a valid address' }
-              onChangeText={this._validateInput}
+              errorMessage={errorMsg}
+              onChangeText={this._setAddress}
+              onBlur={this._validate}
+              onFocus={this._clearError}
               rightIcon={
                 <TouchableOpacity onPress={this._scanQRCode}>
                   <Icon
@@ -88,8 +93,9 @@ class HomeScreen extends Component {
           </View>
           <View style={styles.actionContainer}>
             <Button
+              disabled={isDisabled}
               style={ true ? styles.action : '' }
-              onPress={this._searchAddress}
+              onPress={() => this._searchAddress()}
               title="Search"/>
           </View>
         </View>
@@ -97,27 +103,15 @@ class HomeScreen extends Component {
           <View style={styles.titleContainer}>
             <Text h4 bold>History</Text>
           </View>
-          <View>
-            <AddressList
-              style={styles.scrollView}
-              onPress={this._goToDetail}
-              addresses={this.props.values} />
-          </View>
+          <AddressList
+            style={styles.scrollView}
+            onPress={this._goToDetail}
+            history={this.props.history} />
         </View>
       </View>
     )
   }
 }
-
-
-const mapStateToProps = ({ data }) => ({
-  values: data.values
-})
-
-const mapDispatchToProps = (dispatch) => ({
-  storeValue: (value) => dispatch(setValue(value)),
-  setAccountDetails: (account) => dispatch(setAccountDetails(account))
-})
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
 
@@ -125,8 +119,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     display: 'flex',
-    // alignItems: 'center',
-    // justifyContent: 'center'
   },
   titleContainer: {
     paddingVertical: 20,

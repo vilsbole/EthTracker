@@ -1,11 +1,11 @@
-import { DETAILS } from './constants'
+import { DETAILS, SEARCH } from './constants'
 import { fetchTxs, txsToOperations, getSummary } from '@api/ledgerUtils'
 
-export function setValue(value) {
+export function setSearchHistory(value) {
   return async (dispatch) => {
     dispatch({
-      type: 'INPUT',
-      payload: value
+      type: SEARCH.ADD,
+      payload: { date: new Date(), value }
     })
   }
 }

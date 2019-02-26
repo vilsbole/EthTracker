@@ -1,20 +1,21 @@
 import { combineReducers } from 'redux'
-import { DETAILS } from './constants'
+import { DETAILS, SEARCH } from './constants'
 
 function data(
   state = {
-    values: [],
+    history: [],
     accounts: {},
     openedList: null
   },
   action
 ) {
   switch (action.type) {
-    case 'INPUT':
+    case SEARCH.ADD: {
       return {
         ...state,
-        values: [ ...state.values, action.payload ]
+        history: [ ...state.history, action.payload ]
       }
+    }
     case DETAILS.START: {
       const { account } = action.payload
       return {
