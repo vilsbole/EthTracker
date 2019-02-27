@@ -3,6 +3,9 @@
 A simple react-native app built with Expo.
 
 
+| ![home](https://user-images.githubusercontent.com/2429708/53465187-20e0b180-3a4d-11e9-97f4-38c11b36a652.png) | ![account](https://user-images.githubusercontent.com/2429708/53465188-20e0b180-3a4d-11e9-9299-70e43eb5d156.png) |
+|--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+
 #### Mandatory
 - [x] Input field for Ethereum address
 - [x] Easy access to EthereumAccount screen
