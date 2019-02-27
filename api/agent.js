@@ -1,4 +1,4 @@
-import SECRET from './.env'
+import SECRET from '../.env'
 
 const URL = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency'
 
