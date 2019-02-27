@@ -61,7 +61,7 @@ class HomeScreen extends Component {
 
   _search = () => {
     const account = this.state.address
-    this.setState({ address: null })
+    this.setState({ address: null, isDisabled: true })
     this.props.setHistory(account)
     this._goToDetail(account)
     // @TODO clear input
@@ -82,13 +82,17 @@ class HomeScreen extends Component {
     }
   }
 
+  hasHistory(history) {
+    return history && history.length > 0
+  }
+
   render() {
     const { isDisabled, errorMsg, address } = this.state
     const { history } = this.props
 
     return (
-      <View style={styles.container}>
-        <View style={history.length === 0 ? styles.searchSingle : styles.search}>
+      <View style={[styles.container, (this.hasHistory(history) ? null : styles.centered )]}>
+        <View style={this.hasHistory(history) ? styles.searchSingle : styles.search}>
           <View style={styles.titleContainer}>
             <Text h4 bold>Enter an Ethereum Account</Text>
             <TouchableOpacity onPress={this._randomAccount}>
@@ -121,19 +125,18 @@ class HomeScreen extends Component {
           <View style={styles.actionContainer}>
             <Button
               disabled={isDisabled}
-              style={ true ? styles.action : '' }
-              onPress={() => this._search()}
+              style={styles.action}
+              onPress={this._search}
               title="Search"/>
           </View>
         </View>
         {
-          history && (history.length !== 0) &&
+          this.hasHistory(history) &&
             <View style={styles.history}>
               <View style={styles.titleContainer}>
                 <Text h4 bold>History</Text>
               </View>
               <AddressList
-                style={styles.scrollView}
                 onPress={this._goToDetail}
                 history={history} />
             </View>
@@ -149,6 +152,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     display: 'flex',
+    justifyContent: 'flex-start'
+  },
+  centered: {
     justifyContent: 'center'
   },
   titleContainer: {
@@ -167,15 +173,12 @@ const styles = StyleSheet.create({
   },
   history: {},
   searchSingle: {
-    paddingBottom: 150,
+    paddingBottom: 50,
     marginTop: 150,
   },
   search: {
     marginTop: 150,
-    marginBottom: 40,
-  },
-  scrollView: {
-    height: 300
+    marginBottom: 20,
   },
   small: {
     fontSize: 14,

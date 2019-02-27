@@ -1,7 +1,7 @@
 // Extracted from https://etherscan.io/accounts/100?ps=100
 // And removing accounts with tx > 100000
 const accounts = [
-  "0xda4a4626d3e16e094de3225a751aab7128e96526",
+  "0xda4a4626d3e16e094de3225a751aab7128e96526", // Important ETH diff
   "0x1958c120c884dd39bc0916c1820c5cec984ed4bf",
   "0x1ec582e8ad50b923b45fffcbbb4da9a59699b0e6",
   "0xe011f582dce903a4408bebd318d5aa448f159959",
@@ -23,7 +23,7 @@ const accounts = [
   "0x187bcc3f1ea2ce8e10cf395611a58f2b23c13863",
   "0xd78620e181042f8146a84ff96c10bc565fd9cea9",
   "0x6d24aebf3876164562698d89d8a720043ce321b5",
-  "0x80f7acb62328ce0250c1a8dfc1a49ccf45c6907e",
+  "0x80f7acb62328ce0250c1a8dfc1a49ccf45c6907e", // CATs && DATAcoin
   "0x72acb15929d0290a433fbdd9c50ad3a53bda8544",
   "0xca5f6772d9ea841af3f549b87817562c6f3eca6e",
   "0x032125c0500cc6f82fc9fe18d8681cfd5191ae13",

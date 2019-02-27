@@ -40,11 +40,11 @@ class DetailsScreen extends Component {
   }
 
   getTokens(summary) {
-    return summary.filter(token => token.symbol !== 'ETH')
+    return summary.filter(token => token.symbol !== 'ETH') || []
   }
 
   getEth(summary) {
-    return summary.find(token => token.symbol === 'ETH')
+    return summary.find(token => token.symbol === 'ETH') || {}
   }
 
   getPrice(quotes, symbol) {
@@ -98,7 +98,7 @@ class DetailsScreen extends Component {
           <View style={styles.jumbo}>
             <Text h3 bold>ETH {formatValue(eth.value, eth.magnitude)}</Text>
             <Currency
-              h5
+              h4
               price={this.getPrice(quotes, eth.symbol)}
               value={eth.value}
               mag={eth.magnitude}
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   jumbo: {
-    height: 100,
+    height: 200,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
@@ -173,7 +173,8 @@ const styles = StyleSheet.create({
   green: {
     backgroundColor: '#5ad9bf',
     fontFamily: 'Lekton',
-    fontSize: 18
+    fontSize: 18,
+    borderRadius: 3,
   },
   centered: {
     display: 'flex',

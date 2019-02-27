@@ -145,10 +145,20 @@ export const getSummary = operations => {
   });
 
   const tokens = Object.entries(balances).map(([k, v]) => {
-    return { symbol: k.toUpperCase(), value: v, magnitude: tokensMagnitude[k] }
+    return { symbol: k, value: v, magnitude: tokensMagnitude[k] }
   })
 
-  return tokens;
+  // Coinmarketcap fails when requesting 'DATACOIN'
+  // so we replace with the correct symbol
+  // @TODO Fail gracefully when Coinmarketcap receives an invalid symbol
+  // and retry each symbol individually
+  return tokens
+    .map(t => {
+      t.symbol = (t.symbol.toUpperCase() === 'DATACOIN') ? 'DATA' : t.symbol
+      return t
+    })
+    .filter(token => token.symbol !== 'CATs')
+    .filter(token => token.symbol !== 'WOLK')
 };
 
 /**
