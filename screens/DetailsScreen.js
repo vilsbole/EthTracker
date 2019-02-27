@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
-import { ListItem, Icon } from 'react-native-elements'
+import { Icon } from 'react-native-elements'
 
-import { Text, Currency, TimeAgo } from '@components'
+import { Text, Currency, TimeAgo, Expandable } from '@components'
 import { setAccountDetails, updateAccountDetails, toggleList } from '@store/actions'
 import { getSummary, formatValue } from '@api/ledgerUtils'
 import { convert } from '@api/utils'
@@ -34,7 +34,24 @@ class DetailsScreen extends Component {
     setAccountDetails(navigation.state.params.account)
   }
 
-  _keyExtractor = (value, index) => index.toString()
+  _refreshData = () => {
+    const { updateAccountDetails, navigation } = this.props
+    updateAccountDetails(navigation.state.params.account)
+  }
+
+  getTokens(summary) {
+    return summary.filter(token => token.symbol !== 'ETH')
+  }
+
+  getEth(summary) {
+    return summary.find(token => token.symbol === 'ETH')
+  }
+
+  getPrice(quotes, symbol) {
+    if (quotes && quotes[symbol])
+      return quotes[symbol].quote['EUR'].price
+  }
+
 
   _renderToken = ({ item: token }, quotes) => (
     <View style={styles.tokenItem}>
@@ -68,33 +85,11 @@ class DetailsScreen extends Component {
     </View>
   )
 
-  _refreshData = () => {
-    const { updateAccountDetails, navigation } = this.props
-    updateAccountDetails(navigation.state.params.account)
-  }
-
-  getTokens(summary) {
-    return summary.filter(token => token.symbol !== 'ETH')
-  }
-
-  getEth(summary) {
-    return summary.find(token => token.symbol === 'ETH')
-  }
-
-  isEmpty(list) {
-    return list.length === 0
-  }
-
-  getPrice(quotes, symbol) {
-    if (!quotes && quotes[symbol]) return
-    return quotes[symbol].quote['EUR'].price
-  }
-
   render() {
     const { isUpdating, expandedList, toggleList, account = {} } = this.props
     const { isLoading, ops, summary } = account
 
-    if (account && !isLoading && summary) {
+    if (!isLoading && account && summary) {
       const tokens = this.getTokens(summary)
       const eth = this.getEth(summary)
       const { quotes } = this.props
@@ -110,57 +105,25 @@ class DetailsScreen extends Component {
               style={{ color: 'darkgrey' }}
             />
           </View>
-          <View>
-            <TouchableOpacity
-              disabled={this.isEmpty.apply(this, [tokens])}
-              onPress={() => toggleList('tokens')}
-              style={[styles.headerAction, styles.borderTop]}>
-              <View style={styles.toggableTitle}>
-                <Text h4 bold>Tokens</Text>
-                <Text style={styles.light}>({tokens.length})</Text>
-              </View>
-              <Icon
-                name={ expandedList === 'tokens' ? "chevron-down" : "chevron-right" }
-                size={24}
-                color={ this.isEmpty(tokens) ? 'lightgrey': 'black'}
-                type="octicon" />
-            </TouchableOpacity>
-            {
-              expandedList === 'tokens' &&
-              <FlatList
-                data={tokens}
-                keyExtractor={this._keyExtractor}
-                onRefresh={this._refreshData}
-                refreshing={isUpdating}
-                renderItem={(item) => this._renderToken(item, quotes)}/>
-            }
-          </View>
-          <View>
-            <TouchableOpacity
-              disabled={this.isEmpty.apply(this, [ops])}
-              onPress={() => toggleList('transactions')}
-              style={styles.headerAction}>
-              <View style={styles.toggableTitle}>
-                <Text h4 bold>Transactions</Text>
-                <Text style={styles.light}>({ops.length})</Text>
-              </View>
-              <Icon
-                name={ expandedList === 'transactions' ? "chevron-down" : "chevron-right" }
-                size={24}
-                color="black"
-                type="octicon" />
-            </TouchableOpacity>
-
-              {
-                expandedList === 'transactions' &&
-                  <FlatList
-                    data={ops}
-                    onRefresh={this._refreshData}
-                    refreshing={isUpdating}
-                    keyExtractor={this._keyExtractor}
-                    renderItem={(item) => this._renderTransaction(item, quotes)}/>
-              }
-          </View>
+          <Expandable
+            firstOfKind
+            title="Tokens"
+            data={tokens}
+            isExpanded={expandedList === 'tokens'}
+            onPress={() => toggleList('tokens')}
+            isRefreshing={isUpdating}
+            onRefresh={this._refreshData}
+            renderItem={(item) => this._renderToken(item, quotes)}
+          />
+          <Expandable
+            title="Transactions"
+            data={ops}
+            isExpanded={expandedList === 'transactions'}
+            onPress={() => toggleList('transactions')}
+            isRefreshing={isUpdating}
+            onRefresh={this._refreshData}
+            renderItem={(item) => this._renderTransaction(item, quotes)}
+          />
         </View>
       )
     } else {
@@ -187,21 +150,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  borderTop: {
-    borderTopColor: 'lightgrey',
-    borderTopWidth: 1,
-  },
-  headerAction: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'lightgrey'
-  },
-  title: {},
-  subTitle: {},
   tokenItem: {
     display: 'flex',
     flexDirection: 'row',
@@ -235,17 +183,4 @@ const styles = StyleSheet.create({
   activityIndicator: {
     marginBottom: 100
   },
-  toggableTitle: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-
-  },
-  light: {
-    color: 'darkgrey',
-    fontSize: 20,
-    textAlignVertical: 'bottom',
-    marginLeft: 3,
-    marginBottom: -2,
-  }
 })

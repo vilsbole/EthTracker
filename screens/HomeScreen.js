@@ -165,9 +165,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginTop: 12.5
   },
-  history: {
-
-  },
+  history: {},
   searchSingle: {
     paddingBottom: 150,
     marginTop: 150,

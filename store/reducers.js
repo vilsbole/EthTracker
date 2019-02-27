@@ -7,6 +7,8 @@ function data(
     accounts: {},
     expandedList: null,
     isUpdating: false,
+    meta: {},
+    quotes: []
   },
   action
 ) {
