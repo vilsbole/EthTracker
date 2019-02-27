@@ -2,14 +2,14 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { ActivityIndicator, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { ListItem, Icon } from 'react-native-elements'
-import TimeAgo from 'react-timeago'
 
-import { Text } from '@components'
-import { setAccountDetails, toggleList } from '@store/actions'
+import { Text, Currency, TimeAgo } from '@components'
+import { setAccountDetails, updateAccountDetails, toggleList } from '@store/actions'
 import { getSummary, formatValue } from '@api/ledgerUtils'
+import { convert } from '@api/utils'
 
 const mapStateToProps = ({ data }, { navigation }) => ({
-  openedList: data.openedList,
+  expandedList: data.expandedList,
   account: data.accounts[navigation.state.params.account],
   meta: data.meta,
   quotes: data.quotes,
@@ -27,6 +27,12 @@ class DetailsScreen extends Component {
     headerBackTitleStyle: { fontFamily: 'Lekton' },
   })
 
+  state = {
+    isTokenRefreshing: false,
+    isTxRefreshing: false,
+    isShared: false,
+  }
+
   componentDidMount() {
     const { setAccountDetails, navigation } = this.props
     setAccountDetails(navigation.state.params.account)
@@ -34,24 +40,37 @@ class DetailsScreen extends Component {
 
   _keyExtractor = (value, index) => index.toString()
 
-  _renderToken = ({ item: token }) => (
+  _renderToken = ({ item: token }, quotes) => (
     <View style={styles.tokenItem}>
-      <Text>{token.symbol}</Text>
-      <Text>{formatValue(token.value, token.magnitude)}</Text>
+      <Text bold>{token.symbol} {formatValue(token.value, token.magnitude)}</Text>
+      <Currency
+        price={this.getPrice(quotes, token.symbol)}
+        quotes={quotes}
+        mag={token.magnitude}
+        style={{ alignSelf: 'flex-end', color: 'darkgrey' }}
+      />
     </View>
   )
 
-  _renderTransaction = ({ item: tx }) => (
+  _renderTransaction = ({ item: tx }, quotes) => (
     <View style={styles.txItem}>
-      <TimeAgo date={tx.date} component={Text} style={styles.timeAgo}/>
-      {
-        (tx.type === 'OUT')
-        ?  <Text style={styles.txValue}>-{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
-        :  <Text style={[styles.txValue, styles.green]}>{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
-      }
+      <TimeAgo date={tx.date}/>
+      <View style={{ flexDirection: 'column', alignItems: 'flex-end'}}>
+        {
+          (tx.type === 'OUT')
+          ?  <Text style={styles.txValue}>-{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
+          :  <Text style={[styles.txValue, styles.green]}>{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
+        }
+        <Currency
+          price={this.getPrice(quotes, tx.symbol)}
+          value={tx.value}
+          mag={tx.magnitude}
+          style={{ alignSelf: 'flex-end', color: 'darkgrey', fontSize: 14, paddingTop: 2 }}
+          fontSize={12}
+        />
+      </View>
     </View>
   )
-
 
   getTokens(summary) {
     return summary.filter(token => token.symbol !== 'ETH')
@@ -61,11 +80,20 @@ class DetailsScreen extends Component {
     return summary.find(token => token.symbol === 'ETH')
   }
 
+  isEmpty(list) {
+    return list.length === 0
+  }
+
+  getPrice(quotes, symbol) {
+    if (!quotes && quotes[symbol]) return
+    return quotes[symbol].quote['EUR'].price
+  }
+
   render() {
-    const { openedList, toggleList, account = {} } = this.props
+    const { isUpdating = false, expandedList, toggleList, account = {} } = this.props
     const { isLoading, ops, summary } = account
 
-    if (!isLoading && summary) {
+    if (account && !isLoading && summary) {
       const tokens = this.getTokens(summary)
       const eth = this.getEth(summary)
       const { quotes } = this.props
@@ -73,50 +101,64 @@ class DetailsScreen extends Component {
         <View style={styles.container}>
           <View style={styles.jumbo}>
             <Text h3 bold>ETH {formatValue(eth.value, eth.magnitude)}</Text>
-            {
-              quotes[eth.symbol]
-              && <Text>{ quotes[eth.symbol].quote.price }</Text>
-            }
+            <Currency
+              h5
+              price={this.getPrice(quotes, eth.symbol)}
+              value={eth.value}
+              mag={eth.magnitude}
+              style={{ color: 'darkgrey' }}
+            />
           </View>
           <View>
-            <TouchableOpacity onPress={() => toggleList('tokens')} style={[styles.headerAction, styles.borderTop]}>
+            <TouchableOpacity
+              disabled={this.isEmpty.apply(this, [tokens])}
+              onPress={() => toggleList('tokens')}
+              style={[styles.headerAction, styles.borderTop]}>
               <View style={styles.toggableTitle}>
-                <Text h5 bold>Tokens</Text>
+                <Text h4 bold>Tokens</Text>
                 <Text style={styles.light}>({tokens.length})</Text>
               </View>
               <Icon
-                name={ openedList === 'tokens' ? "chevron-down" : "chevron-right" }
+                name={ expandedList === 'tokens' ? "chevron-down" : "chevron-right" }
                 size={24}
                 color="black"
                 type="octicon" />
             </TouchableOpacity>
             {
-              openedList === 'tokens' &&
+              expandedList === 'tokens' &&
               <FlatList
                 data={tokens}
                 keyExtractor={this._keyExtractor}
-                renderItem={this._renderToken}/>
+                onRefresh={() => console.log('REFRESH')}
+                refreshing={this.state.isShared}
+                renderItem={(item) => this._renderToken(item, quotes)}/>
             }
           </View>
           <View>
-            <TouchableOpacity onPress={() => toggleList('transactions')} style={styles.headerAction}>
+            <TouchableOpacity
+              disabled={this.isEmpty.apply(this, [ops])}
+              onPress={() => toggleList('transactions')}
+              style={styles.headerAction}>
               <View style={styles.toggableTitle}>
-                <Text h5 bold>Transactions</Text>
+                <Text h4 bold>Transactions</Text>
                 <Text style={styles.light}>({ops.length})</Text>
               </View>
               <Icon
-                name={ openedList === 'transactions' ? "chevron-down" : "chevron-right" }
+                name={ expandedList === 'transactions' ? "chevron-down" : "chevron-right" }
                 size={24}
                 color="black"
                 type="octicon" />
             </TouchableOpacity>
-            {
-              openedList === 'transactions' &&
-              <FlatList
-              data={ops}
-              keyExtractor={this._keyExtractor}
-              renderItem={this._renderTransaction}/>
-            }
+
+              {
+                expandedList === 'transactions' &&
+                  <FlatList
+                    data={ops}
+                    onRefresh={() => console.log('REFRESH')}
+                    refreshing={this.state.isShared}
+                    keyExtractor={this._keyExtractor}
+                    renderItem={(item) => this._renderTransaction(item, quotes)}/>
+              }
           </View>
         </View>
       )
@@ -129,6 +171,8 @@ class DetailsScreen extends Component {
     }
   }
 }
+
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(DetailsScreen)
 
@@ -174,16 +218,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   },
   txValue: {
-    paddingVertical: 4,
+    paddingVertical: 1,
     paddingHorizontal: 1,
   },
   green: {
     backgroundColor: '#5ad9bf',
     fontFamily: 'Lekton',
     fontSize: 18
-  },
-  timeAgo: {
-    color: 'darkgrey'
   },
   centered: {
     display: 'flex',
@@ -197,10 +238,13 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center'
+
   },
   light: {
     color: 'darkgrey',
-    fontSize: 14,
-    marginLeft: 3
+    fontSize: 20,
+    textAlignVertical: 'bottom',
+    marginLeft: 3,
+    marginBottom: -2,
   }
 })
