@@ -3,7 +3,7 @@
 A simple react-native app built with Expo.
 
 
-| ![home](https://user-images.githubusercontent.com/2429708/53465187-20e0b180-3a4d-11e9-97f4-38c11b36a652.png) | ![account](https://user-images.githubusercontent.com/2429708/53465188-20e0b180-3a4d-11e9-9299-70e43eb5d156.png) |
+| ![home](https://user-images.githubusercontent.com/2429708/53465187-20e0b180-3a4d-11e9-97f4-38c11b36a652.png) | ![account](https://user-images.githubusercontent.com/2429708/53465663-0ad3f080-3a4f-11e9-8113-e650bd5a2cd0.png) |
 |--------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 
 #### Mandatory
