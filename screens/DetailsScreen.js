@@ -13,11 +13,13 @@ const mapStateToProps = ({ data }, { navigation }) => ({
   account: data.accounts[navigation.state.params.account],
   meta: data.meta,
   quotes: data.quotes,
+  isUpdating: data.isUpdating
 })
 
 const mapDispatchToProps = (dispatch) => ({
   setAccountDetails: (account) => dispatch(setAccountDetails(account)),
   toggleList: (name) => dispatch(toggleList(name)),
+  updateAccountDetails: (account) => dispatch(updateAccountDetails(account))
 })
 
 
@@ -26,12 +28,6 @@ class DetailsScreen extends Component {
     headerTitle: <Text bold numberOfLines={1} ellipsizeMode="middle">{navigation.state.params.account}</Text>,
     headerBackTitleStyle: { fontFamily: 'Lekton' },
   })
-
-  state = {
-    isTokenRefreshing: false,
-    isTxRefreshing: false,
-    isShared: false,
-  }
 
   componentDidMount() {
     const { setAccountDetails, navigation } = this.props
@@ -45,7 +41,7 @@ class DetailsScreen extends Component {
       <Text bold>{token.symbol} {formatValue(token.value, token.magnitude)}</Text>
       <Currency
         price={this.getPrice(quotes, token.symbol)}
-        quotes={quotes}
+        value={token.value}
         mag={token.magnitude}
         style={{ alignSelf: 'flex-end', color: 'darkgrey' }}
       />
@@ -72,6 +68,11 @@ class DetailsScreen extends Component {
     </View>
   )
 
+  _refreshData = () => {
+    const { updateAccountDetails, navigation } = this.props
+    updateAccountDetails(navigation.state.params.account)
+  }
+
   getTokens(summary) {
     return summary.filter(token => token.symbol !== 'ETH')
   }
@@ -90,7 +91,7 @@ class DetailsScreen extends Component {
   }
 
   render() {
-    const { isUpdating = false, expandedList, toggleList, account = {} } = this.props
+    const { isUpdating, expandedList, toggleList, account = {} } = this.props
     const { isLoading, ops, summary } = account
 
     if (account && !isLoading && summary) {
@@ -121,7 +122,7 @@ class DetailsScreen extends Component {
               <Icon
                 name={ expandedList === 'tokens' ? "chevron-down" : "chevron-right" }
                 size={24}
-                color="black"
+                color={ this.isEmpty(tokens) ? 'lightgrey': 'black'}
                 type="octicon" />
             </TouchableOpacity>
             {
@@ -129,8 +130,8 @@ class DetailsScreen extends Component {
               <FlatList
                 data={tokens}
                 keyExtractor={this._keyExtractor}
-                onRefresh={() => console.log('REFRESH')}
-                refreshing={this.state.isShared}
+                onRefresh={this._refreshData}
+                refreshing={isUpdating}
                 renderItem={(item) => this._renderToken(item, quotes)}/>
             }
           </View>
@@ -154,8 +155,8 @@ class DetailsScreen extends Component {
                 expandedList === 'transactions' &&
                   <FlatList
                     data={ops}
-                    onRefresh={() => console.log('REFRESH')}
-                    refreshing={this.state.isShared}
+                    onRefresh={this._refreshData}
+                    refreshing={isUpdating}
                     keyExtractor={this._keyExtractor}
                     renderItem={(item) => this._renderTransaction(item, quotes)}/>
               }

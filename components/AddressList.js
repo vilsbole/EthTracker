@@ -1,14 +1,15 @@
 import React, { Component, PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native'
 import { ListItem } from 'react-native-elements'
-import TimeAgo from 'react-timeago'
+
 import Text from './Text'
+import TimeAgo from './TimeAgo'
 
 class AddressList extends PureComponent {
   static propTypes = {
     history: PropTypes.array,
-    onPress: PropTypes.func
+    onPress: PropTypes.func,
   }
 
   _keyExtractor = (value, index) => index.toString()
@@ -21,7 +22,7 @@ class AddressList extends PureComponent {
       containerStyle={styles.item}
       title={search.value}
       titleProps={{ numberOfLines: 1, ellipsizeMode: 'middle' }}
-      subtitle={<TimeAgo date={search.date} component={Text} style={styles.timeAgo}/>}
+      subtitle={<TimeAgo date={search.date} size={14} />}
     />
   )
 
@@ -41,9 +42,7 @@ class AddressList extends PureComponent {
 export default AddressList
 
 const styles = StyleSheet.create({
-  container: {
-
-  },
+  container: {},
   item: {
     borderBottomWidth: 1,
     borderBottomColor: 'lightgrey'
@@ -53,9 +52,5 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flexGrow: 0
-  },
-  timeAgo: {
-    fontSize: 12,
-    color: 'darkgrey'
   }
 })

@@ -5,7 +5,8 @@ function data(
   state = {
     history: [],
     accounts: {},
-    openedList: null
+    expandedList: null,
+    isUpdating: false,
   },
   action
 ) {
@@ -62,16 +63,16 @@ function data(
       }
     }
     case DETAILS.OPEN_LIST: {
-      return {
-        ...state,
-        openedList: action.payload.listName
-      }
+      return { ...state, expandedList: action.payload.listName }
     }
     case DETAILS.CLOSE_LIST: {
-      return {
-        ...state,
-        openedList: null
-      }
+      return { ...state, expandedList: null }
+    }
+    case DETAILS.UPDATE_START: {
+      return { ...state, isUpdating: true }
+    }
+    case DETAILS.UPDATE_COMPLETE: {
+      return { ...state, isUpdating: false }
     }
     default:
       return state

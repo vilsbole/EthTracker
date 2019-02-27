@@ -1,4 +1,4 @@
-import { API_KEY } from './.env'
+import SECRET from './.env'
 
 const URL = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency'
 
@@ -9,17 +9,17 @@ export const getMetaData = (symbols = []) => {
 
   const ENDPOINT = `${URL}/info?symbol=${symbolsToString(symbols)}`
   return fetch(ENDPOINT, {
-    headers: { 'X-CMC_PRO_API_KEY': API_KEY },
+    headers: { 'X-CMC_PRO_API_KEY': SECRET.API_KEY },
   })
   .then(res => res.json())
-  // .then(({ data }) => data)
+  .then(({ data }) => data)
 }
 
 export const getMarketQuote = (symbols = []) => {
   const ENDPOINT = `${URL}/quotes/latest?symbol=${symbolsToString(symbols)}&convert=EUR`
   return fetch(ENDPOINT, {
-    headers: { 'X-CMC_PRO_API_KEY': API_KEY },
+    headers: { 'X-CMC_PRO_API_KEY': SECRET.API_KEY },
   })
   .then(res => res.json())
-  // .then(({ data }) => data)
+  .then(({ data }) => data)
 }
