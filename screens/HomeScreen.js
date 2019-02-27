@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Permissions } from 'expo'
 import { utils } from 'ethers'
-import { StyleSheet, TouchableHighlight, TouchableOpacity, View } from 'react-native'
+import { FlatList, StyleSheet, TouchableHighlight, TouchableOpacity, View } from 'react-native'
 import { Icon } from 'react-native-elements'
 
 import { setSearchHistory } from '@store/actions'
@@ -61,6 +61,7 @@ class HomeScreen extends Component {
 
   _search = () => {
     const account = this.state.address
+    this.setState({ address: null })
     this.props.setHistory(account)
     this._goToDetail(account)
     // @TODO clear input
@@ -83,9 +84,11 @@ class HomeScreen extends Component {
 
   render() {
     const { isDisabled, errorMsg, address } = this.state
+    const { history } = this.props
+
     return (
       <View style={styles.container}>
-        <View style={styles.search}>
+        <View style={history.length === 0 ? styles.searchSingle : styles.search}>
           <View style={styles.titleContainer}>
             <Text h4 bold>Enter an Ethereum Account</Text>
             <TouchableOpacity onPress={this._randomAccount}>
@@ -123,15 +126,18 @@ class HomeScreen extends Component {
               title="Search"/>
           </View>
         </View>
-        <View style={styles.history}>
-          <View style={styles.titleContainer}>
-            <Text h4 bold>History</Text>
-          </View>
-          <AddressList
-            style={styles.scrollView}
-            onPress={this._goToDetail}
-            history={this.props.history} />
-        </View>
+        {
+          history && (history.length !== 0) &&
+            <View style={styles.history}>
+              <View style={styles.titleContainer}>
+                <Text h4 bold>History</Text>
+              </View>
+              <AddressList
+                style={styles.scrollView}
+                onPress={this._goToDetail}
+                history={history} />
+            </View>
+        }
       </View>
     )
   }
@@ -143,6 +149,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     display: 'flex',
+    justifyContent: 'center'
   },
   titleContainer: {
     paddingVertical: 20,
@@ -159,10 +166,15 @@ const styles = StyleSheet.create({
     marginTop: 12.5
   },
   history: {
-    marginTop: 40,
+
+  },
+  searchSingle: {
+    paddingBottom: 150,
+    marginTop: 150,
   },
   search: {
-    marginTop: 150
+    marginTop: 150,
+    marginBottom: 40,
   },
   scrollView: {
     height: 300
