@@ -169,4 +169,4 @@ export const getSummary = operations => {
  * - magnitude is the number of digits that the coin supports
  */
 export const formatValue = (value, magnitude) =>
-  (value / Math.pow(10, magnitude)).toLocaleString();
+  (value / Math.pow(10, magnitude));

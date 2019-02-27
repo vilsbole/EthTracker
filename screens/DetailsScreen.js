@@ -52,10 +52,16 @@ class DetailsScreen extends Component {
       return quotes[symbol].quote['EUR'].price
   }
 
+  precision(value, magnitude) {
+    const number = formatValue(value, magnitude)
+    if (isNaN(number)) return
+    return number.toFixed(2)
+  }
+
 
   _renderToken = ({ item: token }, quotes) => (
     <View style={styles.tokenItem}>
-      <Text bold>{token.symbol} {formatValue(token.value, token.magnitude)}</Text>
+      <Text bold>{token.symbol} {this.precision(token.value, token.magnitude)}</Text>
       <Currency
         price={this.getPrice(quotes, token.symbol)}
         value={token.value}
@@ -71,14 +77,14 @@ class DetailsScreen extends Component {
       <View style={{ flexDirection: 'column', alignItems: 'flex-end'}}>
         {
           (tx.type === 'OUT')
-          ?  <Text style={styles.txValue}>-{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
-          :  <Text style={[styles.txValue, styles.green]}>{tx.symbol} {formatValue(tx.value, tx.magnitude)}</Text>
+          ?  <Text style={styles.txValue}>-{tx.symbol} {this.precision(tx.value, tx.magnitude)}</Text>
+          :  <Text style={[styles.txValue, styles.green]}>{tx.symbol} {this.precision(tx.value, tx.magnitude)}</Text>
         }
         <Currency
           price={this.getPrice(quotes, tx.symbol)}
           value={tx.value}
           mag={tx.magnitude}
-          style={{ alignSelf: 'flex-end', color: 'darkgrey', fontSize: 14, paddingTop: 2 }}
+          style={{ alignSelf: 'flex-end', color: 'darkgrey', fontSize: 16, paddingTop: 2 }}
           fontSize={12}
         />
       </View>
@@ -96,7 +102,7 @@ class DetailsScreen extends Component {
       return (
         <View style={styles.container}>
           <View style={styles.jumbo}>
-            <Text h3 bold>ETH {formatValue(eth.value, eth.magnitude)}</Text>
+            <Text h3 bold>ETH {this.precision(eth.value, eth.magnitude)}</Text>
             <Currency
               h4
               price={this.getPrice(quotes, eth.symbol)}
@@ -135,8 +141,6 @@ class DetailsScreen extends Component {
     }
   }
 }
-
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(DetailsScreen)
 
