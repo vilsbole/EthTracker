@@ -12,3 +12,9 @@ export const SEARCH = {
   ADD: 'SEARCH_ADD',
   REMOVE: 'SEARCH_REMOVE',
 }
+
+export const MARKET = {
+  REQUEST: 'MARKET_START',
+  SUCCESS: 'MARKET_SUCCESS',
+  FAILURE: 'MARKET_FAILURE'
+}

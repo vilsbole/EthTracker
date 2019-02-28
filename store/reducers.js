@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux'
-import { DETAILS, SEARCH } from './constants'
+import { DETAILS, MARKET, SEARCH } from './constants'
 
 function data(
   state = {
@@ -41,8 +41,8 @@ function data(
       }
       return {
         ...state,
-        meta,
-        quotes,
+        // meta,
+        // quotes,
         accounts: {
           ...state.accounts,
           [account]: accountData
@@ -75,6 +75,16 @@ function data(
     }
     case DETAILS.UPDATE_COMPLETE: {
       return { ...state, isUpdating: false }
+    }
+    case MARKET.REQUEST: {
+      return { ...state } // do nothing for the moment
+    }
+    case MARKET.SUCCESS: {
+      const { meta, quotes } = action.payload
+      return { ...state, meta, quotes }
+    }
+    case MARKET.FAILURE: {
+      return { ...state }
     }
     default:
       return state

@@ -1,4 +1,4 @@
-import { DETAILS, SEARCH } from './constants'
+import { DETAILS, MARKET, SEARCH } from './constants'
 import { fetchTxs, txsToOperations, getSummary } from '@api/ledgerUtils'
 import { getMetaData, getMarketQuote } from '@api/agent'
 
@@ -16,24 +16,34 @@ export function setAccountDetails(account, isUpdate = false) {
     if (!isUpdate) {
       dispatch({ type: DETAILS.START, payload: { account } })
     }
-    let txs, ops, summary = []
+    let summary;
     try {
-      txs = await fetchTxs(account)
-      ops = txsToOperations(txs, account)
+      const txs = await fetchTxs(account)
+      const ops = txsToOperations(txs, account)
       summary = getSummary(ops)
-    } catch (err) {
-      throw new Error(err)
-      dispatch({
-        type: DETAILS.ERROR,
-        payload: { account, err }
-      })
-    } finally {
-      const meta = await getMetaData(summary.map(t => t.symbol))
-      const quotes = await getMarketQuote(summary.map(t => t.symbol))
       dispatch({
         type: DETAILS.COMPLETE,
-        payload: { ops, txs, account, summary, meta, quotes }
+        payload: { ops, txs, account, summary }
       })
+    } catch (err) {
+      throw new Error(err)
+      dispatch({ type: DETAILS.ERROR, payload: { account, err } })
+    } finally {
+      if (summary) { setMarketData(summary)(dispatch) }
+    }
+  }
+}
+
+export function setMarketData(summary) {
+  return async (dispatch) => {
+    try {
+      dispatch({ type: MARKET.REQUEST })
+      const meta = await getMetaData(summary.map(t => t.symbol))
+      const quotes = await getMarketQuote(summary.map(t => t.symbol))
+      dispatch({ type: MARKET.SUCCESS, payload: { meta, quotes } })
+    } catch(err) {
+      throw new Error(err)
+      dispatch({ type: MARKET.FAILURE, payload: { err } })
     }
   }
 }

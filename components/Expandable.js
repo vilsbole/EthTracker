@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native'
 import { Icon } from 'react-native-elements'
 
-import { Text } from '@components'
+import Text from './Text'
 
 export default class Expandable extends PureComponent {
   static propTypes = {
